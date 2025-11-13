@@ -401,7 +401,7 @@ function renderLearned() {
             const lightbulbBtn = document.createElement('span');
             lightbulbBtn.className = 'lightbulb-indicator';
             lightbulbBtn.innerHTML = '💡';
-            lightbulbBtn.title = 'you needed help to solve this, so it expires sooner';
+            lightbulbBtn.setAttribute('data-tooltip', 'you needed help to solve this, so it expires sooner');
             lightbulbBtn.style.cssText = 'cursor: default; font-size: 1rem; margin-right: 0.25rem; flex-shrink: 0; display: inline-block;';
             card.appendChild(lightbulbBtn);
         }

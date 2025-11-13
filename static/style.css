@@ -398,6 +398,41 @@ header h1 {
     transform: scale(1.15);
 }
 
+/* Lightbulb tooltip */
+.lightbulb-indicator {
+    position: relative;
+}
+
+.lightbulb-indicator:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 5px;
+    padding: 6px 10px;
+    background: #2d2d30;
+    color: #dcdcaa;
+    border: 1px solid #4ec9b0;
+    border-radius: 4px;
+    white-space: nowrap;
+    font-size: 0.75rem;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.lightbulb-indicator:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #4ec9b0;
+    z-index: 1000;
+    pointer-events: none;
+}
+
 .learned-name {
     font-weight: 600;
     color: #dcdcaa;
