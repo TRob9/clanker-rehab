@@ -44,6 +44,7 @@ let learnedConcepts = {};
 let settings = { defaultExpiryDays: 14 };
 let activeDifficulties = new Set(['beginner']); // Start with beginner only
 let searchQuery = ''; // Search filter
+let usedAssistance = false; // Track if user used (?) or Show Answer for current concept
 
 // Category order (Core Syntax first, then by importance)
 const CATEGORY_ORDER = [
@@ -302,6 +303,7 @@ function createConceptCard(concept) {
 
 function loadConcept(concept) {
     currentConcept = concept;
+    usedAssistance = false; // Reset assistance flag for new concept
     document.getElementById('concept-title').textContent = concept.name;
     document.getElementById('concept-instruction').textContent = concept.instruction;
 
@@ -366,7 +368,9 @@ function renderLearned() {
 
         const name = document.createElement('div');
         name.className = 'learned-name';
-        name.textContent = concept.name;
+        // Add lightbulb icon if this concept was learned with assistance
+        const conceptData = learnedConcepts[id];
+        name.textContent = conceptData.assisted ? `💡 ${concept.name}` : concept.name;
 
         const timer = document.createElement('div');
         timer.className = 'learned-timer';
@@ -508,6 +512,11 @@ function navigateToConcept(targetNumber) {
 function openTeachingPanel() {
     if (!currentConcept) return;
 
+    // Mark that user used assistance for this concept (unless already learned)
+    if (!learnedConcepts[currentConcept.id]) {
+        usedAssistance = true;
+    }
+
     document.getElementById('teaching-title').textContent = currentConcept.name;
     document.getElementById('teaching-explanation-text').textContent =
         currentConcept.explanation || 'Detailed explanation coming soon...';
@@ -617,18 +626,28 @@ async function runCode() {
 }
 
 function markAsLearned(id) {
+    // Calculate expiry days - halve if user needed assistance
+    const expiryDays = usedAssistance ?
+        Math.max(1, Math.floor(settings.defaultExpiryDays / 2)) :
+        settings.defaultExpiryDays;
+
     learnedConcepts[id] = {
         learnedAt: Date.now(),
-        expiryDays: settings.defaultExpiryDays
+        expiryDays: expiryDays,
+        assisted: usedAssistance // Track if this concept was learned with assistance
     };
     saveLearnedConcepts();
     renderConcepts();
+
+    // Reset assistance flag after marking as learned
+    usedAssistance = false;
 }
 
 function resetCode() {
     if (currentConcept) {
         editor.setValue(currentConcept.boilerplate);
         clearOutput();
+        usedAssistance = false; // Reset assistance flag when resetting code
     }
 }
 
@@ -657,6 +676,7 @@ function unlearnConcept(concept) {
     if (currentConcept && currentConcept.id === conceptId) {
         editor.setValue(currentConcept.boilerplate);
         clearOutput();
+        usedAssistance = false; // Reset assistance flag when unlearning
 
         // Show success message
         const outputEl = document.getElementById('output-content');
@@ -696,6 +716,11 @@ function showTests() {
 function showAnswer() {
     if (!currentConcept || !currentConcept.answer) {
         return;
+    }
+
+    // Mark that user used assistance for this concept (unless already learned)
+    if (!learnedConcepts[currentConcept.id]) {
+        usedAssistance = true;
     }
 
     editor.setValue(currentConcept.answer);
