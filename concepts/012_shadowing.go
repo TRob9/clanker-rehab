@@ -13,12 +13,7 @@ var Concept012 = Concept{
 import "fmt"
 
 func main() {
-	x := 1
-	{
-		x := 2
-		fmt.Println(x)
-	}
-	fmt.Println(x)
+	// Your code here
 }`,
 	Answer: `package main
 
